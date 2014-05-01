@@ -6,7 +6,7 @@
 	<div class='row'>
 		{% if request.user.userrole == "Premium" %}
 			{{ request.user.userrole.role }}
-
+			{% endif %}
 	<div class='col-lg-6'>
 
 <h1> {% if single_user.first_name %}  {{ single_user.first_name }} {% else %} {{ single_user }} {% endif %}  </h1>
@@ -42,18 +42,18 @@
 
 <div class='panel'>
 	<div class='panel-heading'> Addresses</div>
-{% for item in single_user.address_set.all %}
+	{% for item in single_user.address_set.all %}
  
 	
-	{% if request.user.userrole == "Premium" or request.user.userrole.role == "Staff" %}
+		{% if request.user.userrole == "Premium" or request.user.userrole.role == "Staff" %}
 		<li>{{ item.street_address }}, {{ item.city }}  {{ item.state}}</li>
-	{% else %}
+		{% else %}
 		{{ item }}
+		{% endif %}	
+	{% endfor %}
 
-{% endfor %}
 
-
-</div>
+	</div>
 
 </div>
 {% endblock %}

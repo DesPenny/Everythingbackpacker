@@ -21,5 +21,7 @@ urlpatterns = patterns('',
     url(r'^subscribe/$', 'profiles.views.subscribe', name='subscribe'),
     url(r'^questions/$', 'questions.views.all_questions', name='questions'),
     url(r'^messages/', include('directmessages.urls')),
+    url(r'^happyhour/$', 'geolocator.views.happyhour', name='happyhour'),
+    url(r'^location/(?P<id>.*)/$', 'locations.views.single_location'),
     
 )

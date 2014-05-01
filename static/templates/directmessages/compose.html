@@ -3,7 +3,7 @@
 
 {% block content %}
 
-<h1>Compose</h1>
+{{ title|safe }}
 <form action='' method='POST'> {% csrf_token %}
 {{ form.as_p }}
 <input class='btn btn-default' type='submit'>

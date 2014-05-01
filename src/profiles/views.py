@@ -1,25 +1,60 @@
+import stripe
+import datetime
+
 
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.shortcuts import render_to_response, RequestContext, Http404, HttpResponseRedirect
 from django.forms.models import modelformset_factory
 
+from everythingbackpacker.stripe_info import pub_key, secret_key
 from questions.matching import points, match_percentage
-from matches.models import Match, JobMatch
+from matches.models import Match, JobMatch, MatchList
 
 
 from .models import Address, Job, UserPicture
 from .forms import AddressForm, JobForm, UserPictureForm
 
+stripe.api_key = secret_key
+
+
+
 def home(request):
 	return render_to_response('home.html', locals(), context_instance=RequestContext(request))
+
+def get_stripe_customer(user):
+	try:
+		stripe_id = user.userstripe.stripe_id
+	except:
+		stripe_id = False
+	if stripe_id:
+		customer = stripe.Customer.retrieve(stripe_id)
+		return customer
+	else:
+		pass
+
+
+
 
 def subscribe(request):
 	if request.user.is_authenticated():
 		# subscription Choice
 		#Assign the choice after successful payment
 		#Collect Credit cards here
+		publish_key = pub_key
+		customer = get_stripe_customer(request.user)
+		
 
+		if request.method =='POST':
+			membership = request.POST['membership']
+			token = request.POST['stripeToken']
+			customer.cards.create(card=token)
+			customer.subscriptions.create(plan=membership)
+			customer.save()
+
+		
+
+		
 		
 		return render_to_response('profiles/subscribe.html', locals(), context_instance=RequestContext(request))
 	else:
@@ -30,7 +65,7 @@ def all(request):
 	if request.user.is_authenticated():
 		users = User.objects.filter(is_active = True)
 		try:
-			matches = Match.objects.user_matches(request.user)
+			matches = MatchList.objects.filter(user=request.user)
 		except Exception:
 			pass
 		
@@ -50,8 +85,17 @@ def single_user(request, username):
 	set_match.good_match = Match.objects.good_match(request.user, single_user)
 	set_match.save()
 
+	try:
+		viewed = MatchList.objects.get(user=request.user, match=single_user)
+		viewed.read=True
+		if viewed.read_at is None:
+			viewedread_at = datetime.datetime.now()
+		viewed.save()
+	except:
+		pass
+
 	if set_match.good_match:
-		single_user_jobs= Jobs.objects.filter(user=single_user)
+		single_user_jobs= Job.objects.filter(user=single_user)
 		if len(single_user_jobs) > 0:
 			for job in single_user_jobs:
 				job_match, created = JobMatch.objects.get_or_create(user=request.user, job=job)

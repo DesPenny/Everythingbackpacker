@@ -8,11 +8,12 @@
     <meta name="author" content="">
     <link rel="shortcut icon" href="../../docs-assets/ico/favicon.png">
 
-    <title>Jumbotron Template for Bootstrap {% block title %}{% endblock %}</title>
+    <title>{% block title %}{% endblock %}Jumbotron Template for Bootstrap</title>
 
     <!-- Bootstrap core CSS -->
     <link href="/static/css/bootstrap.css" rel="stylesheet">
 
+    <!--<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css">-->
     <!-- Custom styles for this template -->
     <link href="/static/css/jumbotron.css" rel="stylesheet">
     <link href="/static/css/custom.css" rel="stylesheet">
@@ -24,11 +25,14 @@
     <!-- Just for debugging purposes. Don't actually copy this line! -->
     <!--[if lt IE 9]><script src="../../docs-assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
 
+
+
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
       <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
       <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
     <![endif]-->
+    <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
   </head>
 
   <body>
@@ -44,13 +48,21 @@
         {% if request.user.is_authenticated %}
         <div class='col-lg-2 col-12'>
           <ul class='nav nav-pills nav-stacked'>
-            <li><a href='/'><span class='badge pull-right'>8</span>Home</a></li>
+            <li><a href='/'>{% if request.session.new_matches_count %}<span class='badge pull-right'>{{ request.session.new_matches_count }}</span>{% endif %}Home</a></li>
             <li><a href='{% if request.user.is_authenticated %}{% url "profile" request.user.username %} {% endif %}'>Profile</a></li>
             <li><a href='{% url "questions" %}'>Improve Matches</a></li>
-            <li><a href='{% url "inbox" %}'>{% if not 'messages' in request.get_full_path %}<span class='badge pull-right'>{{ request.session.num_of_messages }}{% endif %}</span>Messages</a></li>
+            <li><a href='{% url "inbox" %}'>{% if not 'messages' in request.get_full_path %}
+              {% if not request.session.num_of_messages == 0 %}
+              <span class='badge pull-right'>{{ request.session.num_of_messages }}</span>
+              {% endif %}{% endif %}Messages</a></li>
             {% if 'messages' in request.get_full_path %}
             <li><a href='{% url "compose" %}'>Compose</a></li>
-            <li><a href='{% url "inbox" %}'><span class='badge pull-right'>{{ request.session.num_of_messages }}</span>Inbox</a></li>
+                <li><a href='{% url "inbox" %}'>Inbox
+                  {% if not request.session.num_of_messages == 0 %}
+                  <span class='badge pull-right'>{{ request.session.num_of_messages }}</span>
+                  {% endif %}
+
+                </a></li>
             <li><a href='{% url "sent" %}'>Sent</a></li>
             {% endif %}
           </ul>
@@ -81,12 +93,19 @@
 
   </div> <!-- /container -->
     
+      {% block script %}
+      {% endblock %}
+    
+
 
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
-    <script src="/static/js/bootstrap.min.js"></script>
+    <!--<script src="/static/js/bootstrap.min.js"></script>-->
+
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.0/js/bootstrap.min.js"></script>
+
     <script>
       $(document).ready(function(){
         {% block jquery %}

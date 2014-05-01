@@ -1,6 +1,12 @@
 from django.contrib import admin
 
-from .models import Match, JobMatch
+from .models import Match, JobMatch, MatchList
+
+class MatchListAdmin(admin.ModelAdmin):
+	class Meta:
+		model = MatchList
+
+admin.site.register(MatchList, MatchListAdmin)
 
 
 class MatchAdmin(admin.ModelAdmin):

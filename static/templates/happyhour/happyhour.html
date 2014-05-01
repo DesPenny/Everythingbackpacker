@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+ {% block jquery %}
+ 	window.onload = function(){
+ 	if(navigator.geolocation)
+ 		navigator.geolocation.getCurrentPosition(onSuccess, onError);
+ };
+
+function onSuccess(location){
+	$lat = location.coords.latitude;
+	$lng = location.coords.longitude;
+	$loc_text = location.coords.latitude + ", " + location.coords.longitude;
+	console.log($loc_text);
+	$('#search_form').append("<input type='hidden' name='lat' value='" + $lat + "'>");
+	$('#search_form').append("<input type='hidden' name='lng' value='" + $lng + "'>");
+};
+
+function onError(){
+	console.log("Location not allowed");
+};
+
+
+ {% endblock %}
+
+{% block content %}
+
+<h1> Geolocator Page </h1>
+
+<form method='POST' action='' id='search_form'> {% csrf_token %}
+	<input type='text' name='search'>
+	<input type='submit' value='submit'>
+</form>
+
+
+{% if locations %}
+	You searched for: {{ query }}
+	<ul>
+		{% for name, locu_id in locations %}
+		<li><a href='/location/{{ locu_id }}'> {{ name }}, </li>
+		{% endfor %}
+
+	</ul>
+
+
+{% endif %}
+{% endblock %}
